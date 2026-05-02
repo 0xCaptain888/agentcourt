@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "tsx test/e2e.ts"
+    "test": "tsx test/e2e.ts",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@0glabs/0g-ts-sdk": "^0.5.0",
