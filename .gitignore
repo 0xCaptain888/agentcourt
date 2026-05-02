@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+artifacts/
+cache/
+typechain-types/
+.next/
+out/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Hardhat
+coverage/
+coverage.json
+
+# Misc
+*.log
+tmp/

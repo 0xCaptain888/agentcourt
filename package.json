@@ -1,0 +1,18 @@
+{
+  "name": "agentcourt",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Legal Infrastructure for the AI Agent Economy - Decentralized arbitration built on 0G",
+  "scripts": {
+    "install:all": "pnpm install -r",
+    "build": "pnpm -r build",
+    "test": "cd packages/contracts && pnpm hardhat test",
+    "demo": "cd packages/sdk && pnpm tsx test/e2e.ts",
+    "deploy:testnet": "cd packages/contracts && pnpm hardhat run scripts/deploy.ts --network 0g-testnet",
+    "deploy:mainnet": "cd packages/contracts && pnpm hardhat run scripts/deploy.ts --network 0g-mainnet",
+    "dashboard": "cd packages/dashboard && pnpm dev"
+  },
+  "keywords": ["0G", "AI", "agent", "arbitration", "TEE", "blockchain", "legal-infrastructure"],
+  "author": "AgentCourt Team",
+  "license": "MIT"
+}

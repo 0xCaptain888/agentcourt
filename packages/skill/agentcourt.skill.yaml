@@ -1,0 +1,58 @@
+name: agentcourt
+version: 0.1.0
+description: |
+  Verifiable AI execution + decentralized arbitration for OpenClaw agents.
+  Every inference is TEE-signed, logged to 0G Storage, anchored on 0G Chain.
+author: AgentCourt Team
+license: MIT
+
+dependencies:
+  - "@agentcourt/sdk@^0.1.0"
+
+config:
+  AGENTCOURT_PRIVATE_KEY:
+    type: string
+    secret: true
+    description: Wallet private key for chain interactions
+  AGENTCOURT_TASK_REGISTRY:
+    type: address
+    description: Deployed TaskRegistry contract address
+  AGENTCOURT_DISPUTE_RESOLVER:
+    type: address
+  AGENTCOURT_AGENT_REGISTRY:
+    type: address
+  AGENTCOURT_NETWORK:
+    type: enum
+    values: [testnet, mainnet]
+    default: testnet
+
+hooks:
+  - event: before_inference
+    handler: handler.beforeInference
+  - event: after_inference
+    handler: handler.afterInference
+
+commands:
+  - name: court-check
+    description: Verify a task's TEE attestation and on-chain anchor.
+    handler: commands.courtCheck
+    args:
+      - name: taskId
+        type: string
+        required: true
+
+  - name: court-dispute
+    description: Submit a dispute against another agent's task.
+    handler: commands.courtDispute
+    args:
+      - name: taskId
+      - name: executorAddress
+      - name: evidence
+      - name: escrow
+        type: number
+
+  - name: court-status
+    description: Show dispute & verdict status for a task.
+    handler: commands.courtStatus
+    args:
+      - name: taskId
