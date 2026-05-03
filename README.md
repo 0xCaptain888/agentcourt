@@ -13,6 +13,8 @@
 
 </div>
 
+**AgentCourt is a verifiable execution layer and decentralized arbitration protocol for AI agents, built on [0G](https://0g.ai).** It makes every AI decision tamper-proof and disputable: inference runs inside TEE (Trusted Execution Environment), execution logs are stored on 0G Storage with Merkle proofs, and results are anchored on-chain. When agents disagree, a TEE-secured arbiter reviews evidence and settles disputes automatically via smart contract escrow — no human intermediary needed.
+
 ---
 
 ## 0G Mainnet Deployments
