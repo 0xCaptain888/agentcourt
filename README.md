@@ -68,7 +68,7 @@ AgentCourt provides the **verifiable execution layer** and **decentralized arbit
 
 - **Only project** combining TEE Sealed Inference + KV/Log dual-layer Storage + on-chain arbitration
 - **5 of 5** 0G core components integrated (Compute, Storage KV, Storage Log, Chain, Agent ID)
-- **Production-ready**: deployed on mainnet, MIT-licensed, OpenClaw plugin published
+- **Production-grade**: all 0G integrations use real SDK calls — zero mocks, zero simulated data
 - **Real market**: designed for B2B compliance, DAO governance, AI insurance, Agent SaaS
 
 ---
@@ -123,13 +123,78 @@ Client submits dispute + escrow (DisputeResolution.sol)
 
 ## 0G Integration Details
 
-| 0G Component | How We Use It | Why |
+AgentCourt is a **production-grade integration** of all five 0G core components. Every SDK call hits real 0G infrastructure — no mocks, no simulated data.
+
+| 0G Component | SDK Package | How We Use It |
 |---|---|---|
-| **0G Compute (TeeML)** | Every inference runs through a TEE-attested provider | Guarantees output integrity — no one can tamper with AI responses |
-| **0G Storage KV** | Fast indexed lookups by taskId, agentId | Sub-millisecond query for dashboard & real-time monitoring |
-| **0G Storage Log** | Permanent archival of full execution logs | Tamper-proof evidence for dispute resolution |
-| **0G Chain** | TaskRegistry + DisputeResolution + AgentRegistry contracts | Immutable audit trail + trustless escrow + decentralized arbitration |
-| **Agent ID** | On-chain identity, metadata (skills, capabilities), reputation | Trust scoring for agent-to-agent commerce |
+| **0G Compute (TeeML)** | `@0glabs/0g-serving-broker` | `createZGComputeNetworkBroker()` → `broker.inference.listService()` → `getRequestHeaders()` → OpenAI-compatible TEE endpoint → `processResponse()` for attestation verification |
+| **0G Storage Log** | `@0glabs/0g-ts-sdk` | `ZgFile.fromFilePath()` → `merkleTree()` → `indexer.upload()` — produces a `rootHash` verifiable on [storagescan.0g.ai](https://storagescan.0g.ai) |
+| **0G Storage KV** | `@0glabs/0g-ts-sdk` | `Batcher` + `streamDataBuilder.set()` for writes, `KvClient.getValue()` for sub-millisecond reads by taskId/agentId |
+| **0G Chain** | `ethers.js` v6 | TaskRegistry + DisputeResolution + AgentRegistry Solidity contracts deployed on 0G Mainnet (Chain ID: 16661) |
+| **Agent ID** | SDK + on-chain | Agent metadata uploaded to 0G Storage, identity registered on AgentRegistry contract with reputation scoring |
+
+### SDK: TEE Inference Flow (tee-client.ts)
+
+```typescript
+// 1. Initialize broker via 0G Compute Marketplace
+const broker = await createZGComputeNetworkBroker(signer);
+
+// 2. List available TEE providers
+const services = await broker.inference.listService();
+
+// 3. Create billing ledger (first time)
+await broker.ledger.addLedger(0.05); // deposit 0.05 A0GI
+
+// 4. Get provider endpoint
+const { endpoint, model } = await broker.inference.getServiceMetadata(providerAddress);
+
+// 5. Generate single-use billing headers
+const headers = await broker.inference.getRequestHeaders(providerAddress, prompt);
+
+// 6. Call the TEE inference endpoint (OpenAI-compatible)
+const response = await fetch(`${endpoint}/chat/completions`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json", ...headers },
+  body: JSON.stringify({ messages: [{ role: "user", content: prompt }], model }),
+});
+
+// 7. Verify TEE attestation + settle fees
+const isValid = await broker.inference.processResponse(providerAddress, output, chatId);
+```
+
+### SDK: Storage Flow (storage-client.ts)
+
+```typescript
+// Upload to 0G Storage Log layer
+const file = await ZgFile.fromFilePath(tmpFile);
+const [tree, treeErr] = await file.merkleTree();
+const rootHash = tree!.rootHash(); // verifiable on storagescan.0g.ai
+const [tx, uploadErr] = await indexer.upload(file, evmRpc, signer);
+
+// Download from 0G Storage with Merkle proof verification
+const err = await indexer.download(rootHash, outputPath, true);
+
+// KV write via Batcher
+const batcher = new Batcher(1, nodes, flowContract, evmRpc);
+batcher.streamDataBuilder.set(streamId, keyBytes, valueBytes);
+const [tx, batchErr] = await batcher.exec();
+
+// KV read via KvClient
+const kvClient = new KvClient(kvNodeRpc);
+const value = await kvClient.getValue(streamId, keyBytes);
+```
+
+### Network Endpoints
+
+| Network | Endpoint | Value |
+|---|---|---|
+| **Mainnet** | EVM RPC | `https://evmrpc.0g.ai` |
+| **Mainnet** | Storage Indexer (Turbo) | `https://indexer-storage-turbo.0g.ai` |
+| **Mainnet** | Flow Contract | `0x62D4144dB0F0a6fBBaeb6296c785C71B3D57B526` |
+| **Testnet** | EVM RPC | `https://evmrpc-testnet.0g.ai` |
+| **Testnet** | Storage Indexer (Turbo) | `https://indexer-storage-testnet-turbo.0g.ai` |
+| **Testnet** | Flow Contract | `0x22E03a6A89B950F1c82ec5e74F8eCa321a105296` |
+| **Testnet** | KV Node | `https://kv-testnet.0g.ai` |
 
 ---
 
@@ -140,25 +205,31 @@ agentcourt/
 ├── packages/
 │   ├── contracts/          # Solidity smart contracts (Hardhat)
 │   │   ├── contracts/
-│   │   │   ├── TaskRegistry.sol
-│   │   │   ├── DisputeResolution.sol
-│   │   │   └── AgentRegistry.sol
+│   │   │   ├── TaskRegistry.sol        # On-chain task anchoring
+│   │   │   ├── DisputeResolution.sol   # Escrow + verdict settlement
+│   │   │   └── AgentRegistry.sol       # Agent identity & reputation
+│   │   ├── deployments/
+│   │   │   └── 0g-mainnet.json         # Mainnet addresses & metadata
 │   │   ├── scripts/deploy.ts
 │   │   └── test/
 │   ├── sdk/                # TypeScript SDK
 │   │   └── src/
-│   │       ├── index.ts           # Main AgentCourt class
-│   │       ├── storage-client.ts  # 0G Storage KV + Log
-│   │       ├── logger.ts          # Execution logger
-│   │       ├── tee-client.ts      # 0G Compute TEE client
+│   │       ├── index.ts           # Main AgentCourt orchestrator
+│   │       ├── tee-client.ts      # 0G Compute TEE client (real broker)
+│   │       ├── storage-client.ts  # 0G Storage KV + Log (real SDK)
+│   │       ├── logger.ts          # Dual-layer execution logger
 │   │       ├── proof.ts           # Proof builder & verifier
-│   │       └── agent-id.ts        # Agent ID client
+│   │       ├── agent-id.ts        # Agent ID registry client
+│   │       └── arbiter.ts         # Automated dispute arbiter
 │   ├── skill/              # OpenClaw Skill plugin
-│   │   ├── agentcourt.skill.yaml
+│   │   ├── SKILL.md
 │   │   └── src/
 │   └── dashboard/          # Next.js 14 real-time dashboard
 │       └── src/app/
 ├── docs/
+│   ├── architecture.md     # System architecture diagram
+│   ├── data-flow.md        # Sequence diagrams
+│   └── REVIEWER.md         # Judge/reviewer quick start
 ├── bootstrap.sh            # One-click setup
 ├── Makefile
 └── .github/workflows/ci.yml
@@ -199,8 +270,71 @@ npx hardhat test
 # Deploy to testnet
 npx hardhat run scripts/deploy.ts --network 0g-testnet
 
+# Build SDK
+cd ../sdk && pnpm build
+
 # Start dashboard
 cd ../dashboard && pnpm dev
+```
+
+### Environment Variables
+
+```bash
+# .env
+PRIVATE_KEY=0x...                                          # Wallet private key (needs OG balance)
+OG_TESTNET_RPC=https://evmrpc-testnet.0g.ai               # Testnet RPC
+OG_MAINNET_RPC=https://evmrpc.0g.ai                       # Mainnet RPC
+TEE_SIGNER_ADDRESS=0x...                                   # TEE provider public key
+ARBITER_TEE_SIGNER=0x...                                   # Arbiter TEE public key
+AGENTCOURT_TASK_REGISTRY=0xDB9cC2...                       # TaskRegistry contract
+AGENTCOURT_DISPUTE_RESOLVER=0x6047...                      # DisputeResolution contract
+AGENTCOURT_AGENT_REGISTRY=0x7D82...                        # AgentRegistry contract
+OG_INDEXER_RPC=https://indexer-storage-testnet-turbo.0g.ai # Storage indexer
+OG_KV_NODE_RPC=https://kv-testnet.0g.ai                   # KV node
+OG_FLOW_CONTRACT=0x22E03a6A89B950F1c82ec5e74F8eCa321a105296 # Flow contract
+```
+
+---
+
+## SDK Usage
+
+### Full Pipeline: TEE Inference + Storage + Chain Anchor
+
+```typescript
+import { AgentCourt } from "@agentcourt/sdk";
+
+const ac = new AgentCourt({
+  privateKey: process.env.PRIVATE_KEY!,
+  network: "mainnet",
+  contracts: {
+    taskRegistry: "0xDB9cC2829D002aD68096c0F8E632C4Da33aA6C3b",
+    disputeResolution: "0x6047464bFd78BAAE05d1eaC93713E7C2DD9D19BC",
+    agentRegistry: "0x7D82Fde5705429FBc4a356495020203814009995",
+  },
+});
+await ac.init();
+
+// Register an agent
+const agent = await ac.registerAgent({
+  name: "PaymentBot",
+  description: "Automated payment approval agent",
+  capabilities: ["payment-approval", "invoice-verification"],
+});
+
+// Run verified inference (TEE → Storage → Chain)
+const receipt = await ac.verifiedInference({
+  agentId: agent.agentId,
+  prompt: "Is invoice INV-2025-0001 legitimate? Amount: $45,000 from Vendor XYZ",
+});
+
+console.log("Task ID:", receipt.taskId);
+console.log("Storage rootHash:", receipt.logRootHash);  // verify on storagescan.0g.ai
+console.log("Chain TX:", receipt.chainTxHash);           // verify on chainscan.0g.ai
+console.log("TEE Valid:", receipt.teeResult.isValid);
+
+// Verify on-chain proof
+const proof = await ac.verify(receipt.taskId);
+console.log("On-chain verified:", proof.found, proof.teeSignatureValid);
 ```
 
 ---
@@ -228,24 +362,13 @@ See [packages/skill/SKILL.md](packages/skill/SKILL.md) for configuration details
 
 ---
 
-## Roadmap
-
-| Timeline | Milestone |
-|---|---|
-| **Q2 2025** | Mainnet deployment, Dashboard launch, OpenClaw Skill v1 |
-| **Q3 2025** | Multi-chain support, Arbiter DAO, Reputation marketplace |
-| **Q4 2025** | Insurance protocol integration, Enterprise SDK, Legal opinion templates |
-| **2026** | Cross-chain agent commerce standard, Regulatory compliance framework |
-
----
-
 ## Tech Stack
 
-- **Smart Contracts**: Solidity 0.8.24, Hardhat, OpenZeppelin
-- **SDK**: TypeScript, ethers.js v6, 0G SDKs
-- **Dashboard**: Next.js 14, Tailwind CSS, wagmi, viem, RainbowKit
+- **Smart Contracts**: Solidity 0.8.27, Hardhat, OpenZeppelin
+- **SDK**: TypeScript 5.4, ethers.js v6, `@0glabs/0g-ts-sdk`, `@0glabs/0g-serving-broker`
+- **Dashboard**: Next.js 14, Tailwind CSS, wagmi, viem, RainbowKit, Recharts
 - **Testing**: Chai, Hardhat Network, GitHub Actions CI
-- **Deployment**: 0G Chain (EVM), Vercel (Dashboard)
+- **Deployment**: 0G Mainnet (Chain ID: 16661), Vercel (Dashboard)
 
 ---
 
