@@ -9,7 +9,7 @@
 [![0G Mainnet](https://img.shields.io/badge/0G-主网部署-blue)](https://chainscan.0g.ai)
 [![X](https://img.shields.io/badge/X-@0xCaptain888-000?logo=x)](https://x.com/0xCaptain888)
 
-[在线演示](https://bagpx66z.mule.page/#demo) · [演示视频 (3分钟)](https://youtube.com/) · [English](./README.md) · [X / Twitter](https://x.com/0xCaptain888)
+[在线演示](https://bagpx66z.mule.page/#demo) · [演示视频 (3分钟)](https://www.youtube.com/watch?v=PRgAqjJTTeM) · [English](./README.md) · [X / Twitter](https://x.com/0xCaptain888)
 
 </div>
 
