@@ -1,7 +1,7 @@
 export const CONTRACTS = {
-  taskRegistry: "0x0000000000000000000000000000000000000001" as `0x${string}`,
-  disputeResolution: "0x0000000000000000000000000000000000000002" as `0x${string}`,
-  agentRegistry: "0x0000000000000000000000000000000000000003" as `0x${string}`,
+  taskRegistry: "0xDB9cC2829D002aD68096c0F8E632C4Da33aA6C3b" as `0x${string}`,
+  disputeResolution: "0x6047464bFd78BAAE05d1eaC93713E7C2DD9D19BC" as `0x${string}`,
+  agentRegistry: "0x7D82Fde5705429FBc4a356495020203814009995" as `0x${string}`,
 };
 
 export const TASK_REGISTRY_ABI = [

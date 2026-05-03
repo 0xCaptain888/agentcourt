@@ -18,11 +18,11 @@
 
 | Contract | Address | Explorer |
 |----------|---------|----------|
-| TaskRegistry | `Pending Deployment` | [View on 0G Scan](https://chainscan.0g.ai) |
-| DisputeResolution | `Pending Deployment` | [View on 0G Scan](https://chainscan.0g.ai) |
-| AgentRegistry | `Pending Deployment` | [View on 0G Scan](https://chainscan.0g.ai) |
+| TaskRegistry | `0xDB9cC2829D002aD68096c0F8E632C4Da33aA6C3b` | [View on 0G Scan](https://chainscan.0g.ai/address/0xDB9cC2829D002aD68096c0F8E632C4Da33aA6C3b) |
+| DisputeResolution | `0x6047464bFd78BAAE05d1eaC93713E7C2DD9D19BC` | [View on 0G Scan](https://chainscan.0g.ai/address/0x6047464bFd78BAAE05d1eaC93713E7C2DD9D19BC) |
+| AgentRegistry | `0x7D82Fde5705429FBc4a356495020203814009995` | [View on 0G Scan](https://chainscan.0g.ai/address/0x7D82Fde5705429FBc4a356495020203814009995) |
 
-> Addresses will be updated after mainnet deployment. Testnet deployment available via `make deploy-testnet`.
+> Deployer: `0x5418546c81E0aCE44128486CFc8e10d665A2af87` · Chain ID: 16661 · [All transactions](https://chainscan.0g.ai/address/0x5418546c81E0aCE44128486CFc8e10d665A2af87)
 
 ---
 

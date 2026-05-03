@@ -4,7 +4,11 @@
 
 1. **Live Demo**: Visit the deployed Dashboard to see live attested executions on 0G Mainnet
 2. **Demo Video**: [YouTube Link] (2:48)
-3. **Mainnet Proof**: See contract addresses in README - click Explorer links to verify
+3. **Mainnet Proof**:
+   - TaskRegistry: https://chainscan.0g.ai/address/0xDB9cC2829D002aD68096c0F8E632C4Da33aA6C3b
+   - DisputeResolution: https://chainscan.0g.ai/address/0x6047464bFd78BAAE05d1eaC93713E7C2DD9D19BC
+   - AgentRegistry: https://chainscan.0g.ai/address/0x7D82Fde5705429FBc4a356495020203814009995
+   - Click any recent transaction to verify on-chain anchoring works
 
 ## Local Reproduction (15 minutes)
 

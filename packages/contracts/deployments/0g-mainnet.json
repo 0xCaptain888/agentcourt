@@ -1,0 +1,13 @@
+{
+  "network": "0g-mainnet",
+  "chainId": 16661,
+  "deployer": "0x5418546c81E0aCE44128486CFc8e10d665A2af87",
+  "timestamp": "2026-05-02T22:10:53.932Z",
+  "contracts": {
+    "AgentRegistry": "0x7D82Fde5705429FBc4a356495020203814009995",
+    "TaskRegistry": "0xDB9cC2829D002aD68096c0F8E632C4Da33aA6C3b",
+    "DisputeResolution": "0x6047464bFd78BAAE05d1eaC93713E7C2DD9D19BC"
+  },
+  "teeSigner": "0x5418546c81E0aCE44128486CFc8e10d665A2af87",
+  "arbiterSigner": "0x5418546c81E0aCE44128486CFc8e10d665A2af87"
+}

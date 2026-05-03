@@ -14,6 +14,16 @@
 
 ---
 
+## 0G 主网合约
+
+| 合约 | 地址 | 浏览器 |
+|------|------|--------|
+| TaskRegistry | `0xDB9cC2829D002aD68096c0F8E632C4Da33aA6C3b` | [查看](https://chainscan.0g.ai/address/0xDB9cC2829D002aD68096c0F8E632C4Da33aA6C3b) |
+| DisputeResolution | `0x6047464bFd78BAAE05d1eaC93713E7C2DD9D19BC` | [查看](https://chainscan.0g.ai/address/0x6047464bFd78BAAE05d1eaC93713E7C2DD9D19BC) |
+| AgentRegistry | `0x7D82Fde5705429FBc4a356495020203814009995` | [查看](https://chainscan.0g.ai/address/0x7D82Fde5705429FBc4a356495020203814009995) |
+
+---
+
 ## 核心问题
 
 当 AI Agent 开始做出真正的经济决策——审批付款、执行交易、签署合同——三个关键问题浮出水面：
