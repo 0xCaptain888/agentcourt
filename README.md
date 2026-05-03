@@ -7,8 +7,9 @@
 [![CI](https://github.com/0xCaptain888/agentcourt/workflows/CI/badge.svg)](https://github.com/0xCaptain888/agentcourt/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![0G Mainnet](https://img.shields.io/badge/0G-Mainnet-blue)](https://chainscan.0g.ai)
+[![X](https://img.shields.io/badge/X-@0xCaptain888-000?logo=x)](https://x.com/0xCaptain888)
 
-[Live Demo](https://agentcourt-demo.vercel.app) · [Demo Video (3min)](https://youtube.com/) · [Pitch Deck](./docs/pitch-deck.pdf) · [中文文档](./README.zh-CN.md)
+[Live Demo](https://bagpx66z.mule.page/#demo) · [Demo Video (3min)](https://youtube.com/) · [Pitch Deck](./docs/pitch-deck.pdf) · [中文文档](./README.zh-CN.md) · [X / Twitter](https://x.com/0xCaptain888)
 
 </div>
 
